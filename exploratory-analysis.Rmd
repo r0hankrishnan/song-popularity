@@ -5,26 +5,54 @@ date: "2024-05-04"
 output: html_document
 ---
 
+## Load data & basic info
+
+Look at basic data information (variable types, missing values, unique values, data structure).
+
 ```{r}
 #Load data
 data <- read.csv("~/Downloads/train.csv")
 
-#Quick look at data
-head(data, 5)
+#Dimension of data
+dim(data)
 
-#List variable type for each column
+#Quick look at data
+head(data)
+
+#List variable type for each column -- album_name, track_name, track_genre are characters
 for (i in 1:ncol(data)){
   print(paste0(colnames(data[i]),": ", typeof(data[,i])))
 }
 
-#Count missing values for each column
+#Count missing values for each column -- No missing values
 for (i in 1:ncol(data)){
   print(paste0(colnames(data[i]), ": ", sum(is.na(data[,i]))))
 }
 
-#Count unique values for each column
+#Count unique values for each column -- explicity is binary, key is categorical, mode is binary, time_signature is categorical, track_genre is categorical 
 for (i in colnames(data)){
   x = n_distinct(data[i])
   print(paste(i," distinct values: ", x))
+}
+```
+
+## Basic EDA
+
+```{r}
+#Graph distributions of each variable
+for(i in 1:ncol(data)){
+  if(typeof(data[,i]) == "character"){
+    print("column is character type")
+  } else if(typeof(data[,i]) == "logical"){
+    print("column is logical type")
+  } else{
+    p1 <- ggplot(data, aes(x = data[,i])) + 
+          geom_density() + 
+          labs(x = colnames(data[i]))
+    p2 <- ggplot(data, aes(x = data[,i])) + 
+          geom_histogram() + 
+          labs(x = colnames(data[i]))
+    gridExtra::grid.arrange(p1, p2)
+  }
 }
 ```
