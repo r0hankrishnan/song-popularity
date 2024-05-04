@@ -1,0 +1,30 @@
+---
+title: "exploratory analysis"
+author: "Rohan Krishnan"
+date: "2024-05-04"
+output: html_document
+---
+
+```{r}
+#Load data
+data <- read.csv("~/Downloads/train.csv")
+
+#Quick look at data
+head(data, 5)
+
+#List variable type for each column
+for (i in 1:ncol(data)){
+  print(paste0(colnames(data[i]),": ", typeof(data[,i])))
+}
+
+#Count missing values for each column
+for (i in 1:ncol(data)){
+  print(paste0(colnames(data[i]), ": ", sum(is.na(data[,i]))))
+}
+
+#Count unique values for each column
+for (i in colnames(data)){
+  x = n_distinct(data[i])
+  print(paste(i," distinct values: ", x))
+}
+```
