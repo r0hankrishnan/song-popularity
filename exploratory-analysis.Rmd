@@ -11,7 +11,7 @@ Look at basic data information (variable types, missing values, unique values, d
 
 ```{r}
 #Load data
-data <- read.csv("~/Downloads/train.csv")
+data <- read.csv("~/Documents/GitHub/song-popularity/data/train.csv")
 
 #Dimension of data
 dim(data)
