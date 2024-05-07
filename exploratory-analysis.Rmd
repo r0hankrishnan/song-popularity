@@ -10,6 +10,11 @@ output: html_document
 Look at basic data information (variable types, missing values, unique values, data structure).
 
 ```{r}
+#Load EDA libraries
+library(ggplot2)
+library(tidyverse)
+library(gridExtra)
+
 #Load data
 data <- read.csv("~/Documents/GitHub/song-popularity/data/train.csv")
 
