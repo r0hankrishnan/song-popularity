@@ -12,6 +12,7 @@ Look at basic data information (variable types, missing values, unique values, d
 ```{r}
 #Load EDA libraries
 library(ggplot2)
+library(ggcorrplot)
 library(tidyverse)
 library(gridExtra)
 
@@ -141,6 +142,30 @@ for(i in 1:ncol(data)){
     gridExtra::grid.arrange(p1, p2)
   }
 }
+
+#Create correlation matrix - first remove categorical variables
+
+newdata <- data %>%
+  select(-track_name, -album_name, -id, -time_signature, -explicit, -track_genre)
+
+
+#newdata$num_genre <- data$track_genre
+
+#unique(newdata$num_genre)
+
+#for(i in nrow(newdata)){
+#  if(newdata$num_genre == "pop"){
+#  newdata$num_genre == 1
+#  }else if(newdata$num_genre == "rock"){
+#    newdata$num_genre == 2
+#  } else{
+#      newdata$num_genre == 3
+#    }
+#}
+
+#Get correlations and display in matrix
+cor <- cor(newdata)
+ggcorrplot(cor)
 ```
 
 ## Main Takeaways
