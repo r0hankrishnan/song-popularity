@@ -124,4 +124,25 @@ for(i in 1:ncol(data)){
     gridExtra::grid.arrange(p1, p2)
   }
 }
+
+#Look at boxplots + densities between time signatures
+for(i in 1:ncol(data)){
+  if(typeof(data[,i]) == "character"){
+    print(paste(colnames(data[i])," is character type"))
+  } else if(typeof(data[,i]) == "logical"){
+    print(paste(colnames(data[i])," is logical type"))
+  } else{
+    p1 <- ggplot(data, aes(x = data[,i], color = as.factor(time_signature))) + 
+          geom_boxplot() + 
+          labs(x = colnames(data[i]))
+    p2 <- ggplot(data, aes(x = data[,i], color = as.factor(time_signature))) + 
+          geom_density() + 
+          labs(x = colnames(data[i]))
+    gridExtra::grid.arrange(p1, p2)
+  }
+}
 ```
+
+## Main Takeaways
+
+There appears to be significant differences between the popularity of songs between genres. There are also some missing categories in the `time_signature` variable. Before building models, we should preprocess the data and remove any obs with `time_signature` equal to 0 (only 1 obs) or 2 (no obs). We should also convert `explicit`, `time_signature`, `key`, and `track_genre` into factor variables. Finally, we should remove the `id`, `track_name`, and `album_name` variables as they are not variables that we want our models to take into account when trying to predict a song's popularity.
