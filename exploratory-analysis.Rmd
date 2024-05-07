@@ -39,6 +39,12 @@ for (i in colnames(data)){
   x = n_distinct(data[i])
   print(paste(i," distinct values: ", x))
 }
+
+#We don't need id, album_name, or track_name for EDA
+data <- data %>%
+  select(-id, -album_name, - track_name)
+
+ncol(data)
 ```
 
 ## Basic EDA
@@ -56,6 +62,64 @@ for(i in 1:ncol(data)){
           labs(x = colnames(data[i]))
     p2 <- ggplot(data, aes(x = data[,i])) + 
           geom_histogram() + 
+          labs(x = colnames(data[i]))
+    gridExtra::grid.arrange(p1, p2)
+  }
+}
+
+#Look at outliers with boxplots
+for(i in 1:ncol(data)){
+  if(typeof(data[,i]) == "character"){
+    print(paste(colnames(data[i])," is character type"))
+  } else if(typeof(data[,i]) == "logical"){
+    print(paste(colnames(data[i])," is logical type"))
+  } else{
+    p1 <- ggplot(data, aes(x = data[,i])) + 
+          geom_boxplot() + 
+          labs(x = colnames(data[i]))
+    p2 <- ggplot(data, aes(x = data[,i])) + 
+          geom_density() + 
+          labs(x = colnames(data[i]))
+    gridExtra::grid.arrange(p1, p2)
+  }
+}
+```
+
+## Further Exploration of Differences Between Genres
+
+```{r}
+#Look at how many songs are represented by each genre
+data %>%
+  group_by(track_genre) %>%
+  summarize(count = n())
+
+#Look at how many songs are explicit vs not
+data %>%
+  group_by(explicit) %>%
+  summarize(count = n()) #There are only 50 (less than 5% of the data) explicit obs
+
+#Look at how many songs have each tempo -- again, some categories with under 5% of obs (0 and 2)
+data %>%
+  group_by(time_signature) %>%
+  summarize(count = n())
+
+#Look at mean values across genres
+genre_means <- data %>%
+  group_by(track_genre) %>%
+  summarise(across(everything(),mean)); genre_means
+
+#Look at boxplots + densities between genres
+for(i in 1:ncol(data)){
+  if(typeof(data[,i]) == "character"){
+    print(paste(colnames(data[i])," is character type"))
+  } else if(typeof(data[,i]) == "logical"){
+    print(paste(colnames(data[i])," is logical type"))
+  } else{
+    p1 <- ggplot(data, aes(x = data[,i], color = track_genre)) + 
+          geom_boxplot() + 
+          labs(x = colnames(data[i]))
+    p2 <- ggplot(data, aes(x = data[,i], color = track_genre)) + 
+          geom_density() + 
           labs(x = colnames(data[i]))
     gridExtra::grid.arrange(p1, p2)
   }
