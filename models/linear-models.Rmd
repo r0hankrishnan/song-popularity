@@ -4,3 +4,83 @@ author: "Rohan Krishnan"
 date: "2024-05-07"
 output: html_document
 ---
+
+# Basic Model
+
+## Multiple Linear Regression
+
+```{r}
+#Libraries
+library(tidyverse)
+
+#Load data
+train <- read.csv("~/Documents/GitHub/song-popularity/data/pre_proc_train.csv")
+test <- read.csv("~/Documents/GitHub/song-popularity/data/pre_proc_test.csv")
+
+#Convert explicit, key, time_signature, and track_genre to factor variables
+train <- train %>%
+  mutate(explicit = as.factor(explicit),
+         key = as.factor(key),
+         time_signature = as.factor(time_signature),
+         track_genre = as.factor(track_genre))
+
+test <- test %>%
+    mutate(explicit = as.factor(explicit),
+         key = as.factor(key),
+         time_signature = as.factor(time_signature),
+         track_genre = as.factor(track_genre))
+
+#Run basic MLR
+mlr.mod <- lm(popularity ~ ., data = train)
+
+#Calculate RMSE
+mlr.pred <- predict(mlr.mod, test)
+mlr.rmse <- sqrt(mean(test$popularity - mlr.pred)^2); mlr.rmse
+```
+
+# Linear Model Selection Procedures
+
+## Best Subset Selection
+
+```{r}
+set.seed(100)
+#Load libraries
+library(leaps)
+
+#Run best subset selection, calculate MSEs and plot
+bss.mod <- regsubsets(popularity ~., data = train, nvmax = ncol(train))
+bss.mse <- summary(bss.mod)$rss / nrow(train)
+plot(bss.mse, ylab = "MSE", type = "o")
+
+predict.regsubsets <- function(object, newdata, id, ...){
+  form <- as.formula(object$call[[2]])
+  mat <- model.matrix(form, newdata)
+  coefi <- coef(object, id = id)
+  xvars <- names(coefi)
+  mat[,xvars] %*% coefi
+}
+
+#Calculate and graph test MSEs
+testbss.mse <- sapply(1:16, function(i) mean((test$popularity - predict.regsubsets(bss.mod, test, i))^2))
+plot(testbss.mse, ylab = "MSE", type = "o", pch = 19)
+
+#Recover optimal number of coefficients
+which.min(testbss.mse)
+coef(bss.mod, id = 1) #Binary variable indicating whether song is a pop song or not is most useful
+
+unique(train$track_genre)
+
+#Create binary variable for pop in both train and test sets
+train.bss <- train %>%
+  mutate(track_genre_pop = ifelse(train$track_genre == "pop", 1, 0))
+
+test.bss <- test %>%
+  mutate(track_genre_pop = ifelse(test$track_genre == "pop", 1, 0))
+
+#Train bss selected model
+bss.mlr.mod <- lm(popularity ~ track_genre_pop, data = train.bss)
+
+#Calculate RMSE on test set
+bss.mlr.pred <- predict(bss.mlr.mod, test.bss)
+bss.mlr.rmse <- sqrt(mean((test.bss$popularity - bss.mlr.pred)^2)); bss.mlr.rmse
+```
