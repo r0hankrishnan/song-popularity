@@ -14,4 +14,7 @@ As a Data Science Consultant , I was hired to predict the popularity of songs fr
 ## EDA
 To view my exploratory data analysis, please view the `exploratory-analysis.Rmd` file. 
 
+```{r}
+print("hello")
+```
 
