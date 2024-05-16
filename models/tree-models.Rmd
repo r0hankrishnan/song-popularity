@@ -113,3 +113,84 @@ rmse.long %>%
         plot.subtitle = element_text(face = "italic"),
         plot.title = element_text(face = "bold")) ##As expected, RF does best for prediction
 ```
+
+## Variable Importance
+
+```{r}
+#Get variable importance from the model fit
+ImpData <- as.data.frame(importance(rf.mod))
+ImpData$Var.Names <- row.names(ImpData)
+
+ImpData %>%
+  arrange(`%IncMSE`) %>%
+  mutate(Name = factor(Var.Names, levels = Var.Names)) %>%
+  ggplot(aes(x = Name, y = `%IncMSE`)) + 
+  geom_segment(aes(x = Name, xend = Name, y = 0, yend = `%IncMSE`),color="light blue") +
+  geom_point(aes(size = IncNodePurity), color = "#061A40", alpha = 0.8) + 
+  labs(title = "Random Forest Variable Importance",
+       subtitle = "Percent Increase MSE and Increase in Node Purity") + 
+  theme_light() + 
+  coord_flip() + 
+  theme(
+    legend.position = "bottom",
+    panel.grid.major.y = element_blank(),
+    panel.border = element_blank(),
+    axis.ticks.y = element_blank(),
+    plot.title = element_text(face = "bold"),
+    plot.subtitle = element_text(face = "italic")
+  )
+```
+
+## Tune RF using GridSearch
+
+```{r}
+#Grid search to tune mtry:
+
+#Load caret library
+library(caret)
+
+#Set control procedure
+control <- trainControl(method="repeatedcv", number=5, 
+                        repeats=2, search="grid")
+
+#Set seed, define grid, and generate models for grid of mtry values
+set.seed(100)
+tunegrid <- expand.grid(.mtry=seq(1,15,1))
+rf_gridsearch <- train(popularity~., data=train, method="rf", 
+                       metric="RMSE", tuneGrid=tunegrid, 
+                       trControl=control)
+
+#Display grid search results -- mtry = 12 minimizes RMSE
+print(rf_gridsearch)
+
+#Create tuned RF
+set.seed(100)
+tunedrf.mod <- randomForest(popularity~., data=train, 
+                           ntree=501, mtry=12, importance = TRUE)
+
+tunedrf.pred <- predict(tunedrf.mod, test)
+tunedrf.rmse <- sqrt(mean((tunedrf.pred - test$popularity)^2))
+
+#Variable importance
+TunedImpData <- as.data.frame(importance(tunedrf.mod))
+TunedImpData$Var.Names <- row.names(TunedImpData)
+
+TunedImpData %>%
+  arrange(`%IncMSE`) %>%
+  mutate(Name = factor(Var.Names, levels = Var.Names)) %>%
+  ggplot(aes(x = Name, y = `%IncMSE`)) + 
+  geom_segment(aes(x = Name, xend = Name, y = 0, yend = `%IncMSE`),color="light blue") +
+  geom_point(aes(size = IncNodePurity), color = "#061A40", alpha = 0.8) + 
+  labs(title = "Tuned Random Forest Variable Importance",
+       subtitle = "Percent Increase MSE and Increase in Node Purity") + 
+  theme_light() + 
+  coord_flip() + 
+  theme(
+    legend.position = "bottom",
+    panel.grid.major.y = element_blank(),
+    panel.border = element_blank(),
+    axis.ticks.y = element_blank(),
+    plot.title = element_text(face = "bold"),
+    plot.subtitle = element_text(face = "italic")
+  )
+```
