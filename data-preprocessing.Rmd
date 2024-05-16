@@ -34,6 +34,8 @@ for (i in 1:ncol(newdata)){
   print(paste0(colnames(newdata[i]),": ", is.factor(newdata[,i])))
 }
 
+#Save overall preprocessed data to data folder
+write_csv(newdata, file = "~/Documents/GitHub/song-popularity/data/clean_data")
 ```
 
 ## Create model training and testing sets and save to data folder
