@@ -263,8 +263,6 @@ aLassoOLS.pred <- predict(afterLassoOLS.mod, test)
 aLassoOLS.mse <- mean((aLassoOLS.pred - test$popularity)^2); aLassoOLS.mse
 
 mse[4] <- aLassoOLS.mse
-
-
 ```
 
 ## Ridge
@@ -284,7 +282,6 @@ mse[5] <- ridge.mse
 
 best.ridge <- glmnet(x.train, y.train, alpha = 0, lambda = best.lambda)
 coef(best.ridge)
-
 ```
 
 ## Bagged Random Forest
