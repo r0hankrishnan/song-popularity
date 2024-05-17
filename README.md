@@ -1,5 +1,5 @@
 ## Song Popularity Prediction Project (In Progress)
-**If you are visiting from my CV, please go to the class-work folder to see my code and writing submissions**
+**If you are visiting from my CV, please go to the `class-submissions` folder to see my code and writing submissions**
 
 *Apologies for the incomplete README, I am currently in the process of expanding upon this project!*
 
