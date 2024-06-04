@@ -114,6 +114,13 @@ rmse.long %>%
         plot.title = element_text(face = "bold")) ##As expected, RF does best for prediction
 ```
 
+## Save best model to RDS format to use in Dashboard
+
+```{r}
+#Save best model (rf.mod) to RDS
+saveRDS(rf.mod, "rfModel.rds")
+```
+
 ## Variable Importance
 
 ```{r}
