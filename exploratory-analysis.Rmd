@@ -165,7 +165,7 @@ newdata <- data %>%
 
 #Get correlations and display in matrix
 cor <- cor(newdata)
-ggcorrplot(cor)
+ggcorrplot(cor, title = "Correlation Matrix", tl.cex = 7, legend.title = "Correlation", colors = c("#5386E4", "white", "#EE8434"))
 ```
 
 ## Main Takeaways
