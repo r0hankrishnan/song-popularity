@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyverse)
 library(randomForest)
+library(kableExtra)
 songs <- read.csv("~/Documents/GitHub/song-popularity/data/clean_data.csv")
 songs %>% glimpse()
 songs<- songs %>% select(-id)
@@ -48,15 +49,33 @@ testData <- data.frame(
       time_signature = 4,
       track_genre = "pop")
 
-
 popularity <- predict(rf.mod, testData)
 
 dData <- cbind(popularity, testData)
+
+dData %>%
+  gather(key = "key", value = "value", popularity:track_genre) %>%
+  mutate(key = str_replace(key,"_", " ") %>% str_to_title()) %>%
+  kable(digits = 2, format.args = list(big.mark = ",")) 
+  
+
+dData %>%
+  t() %>%
+  as.data.frame() %>%
+  rownames_to_column() %>%
+  rename(Attribute = "rowname",
+         Value = "1") %>%
+  kable() 
 ```
 
 ```{r}
-songs %>% ggplot(aes(x = duration_ms, y = popularity)) + 
-  geom_point() + 
-  geom_point(aes(x = dData$duration_ms, y = dData$popularity), color = "red")
+library(scales)
+
+songs %>%
+      ggplot(aes(x = duration_ms, y = popularity)) + 
+      geom_point() + 
+      geom_point(aes(x = dData$duration_ms, y = dData$popularity), color = "red") + 
+      scale_x_continuous(labels = label_number()) + 
+      labs(x = "Duration (ms)", y = "Popularity") 
 ```
 

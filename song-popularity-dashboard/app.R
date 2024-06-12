@@ -1,7 +1,9 @@
 library(shinydashboard)
 library(tidyverse)
 library(randomForest)
+library(kableExtra)
 library(plotly)
+library(scales)
 
 songs <- read.csv("~/Documents/GitHub/song-popularity/data/clean_data.csv")
 songs <- songs %>% select(-id)
@@ -76,11 +78,19 @@ ui <- dashboardPage(
   
   dashboardBody(
     fluidRow(
-      valueBoxOutput("text_result")
+      valueBoxOutput("text_result", width = "100%")
     ),
     
     fluidRow(
-      plotlyOutput("plot")
+      plotOutput("plot")
+    ),
+    
+    fluidRow(
+      textOutput(tags$h1("Header"))
+    ),
+    
+    fluidRow(
+      uiOutput("table")
     )
    
   
@@ -121,7 +131,6 @@ server <- function(input, output) {
     
     valueBox(value = popularity(),
              subtitle = "Predicted Popularity",
-             icon = icon("fa-regular fa-heart"),
              color = "purple",
              width = "100%")
   })
@@ -132,13 +141,30 @@ server <- function(input, output) {
     pData %>% rename(popularity = "popularity()")
   })
   
-  output$plot <- renderPlotly({
+  output$plot <- renderPlot({
     songs %>%
-      ggplot(aes(x = format(duration_ms, scientific = F), y = popularity)) + 
+      ggplot(
+        aes(x = duration_ms, y = popularity, 
+            text = paste("Popularity: ", popularity, "\n",
+                         "Duration(ms): ", duration_ms), sep = "")) + 
       geom_point() + 
       geom_point(aes(x = plot_data()$duration_ms, y = plot_data()$popularity), color = "red") +
-      labs(x = "Duration (ms)", y = "Popularity")
+      scale_x_continuous(labels = label_number()) + 
+      labs(title = "Duration(ms) vs Popularity",
+           x = "Duration (ms)", y = "Popularity") + 
+      theme_bw()
   })
+  
+  output$table <- function(){
+    plot_data() %>%
+      gather(key = "key", value = "value", popularity:track_genre) %>%
+      mutate(key = str_replace(key,"_", " ") %>% str_to_title()) %>%
+      kable(caption = "Predicted Popularity Summary", 
+            digits = 2, format.args = list(big.mark = ","),
+            col.names = c("Variable", "Value")) %>%
+      kable_styling(bootstrap_options = c("striped", "hover"), full_width = TRUE)
+      
+  }
 }
 
 shinyApp(ui, server)
