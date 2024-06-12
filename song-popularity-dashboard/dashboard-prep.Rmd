@@ -1,0 +1,54 @@
+---
+title: "ShinyAppPrep"
+author: "Rohan Krishnan"
+date: "2024-06-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(randomForest)
+songs <- read.csv("~/Documents/GitHub/song-popularity/data/clean_data.csv")
+songs %>% glimpse()
+songs<- songs %>% select(-id)
+
+unique(songs$mode)
+```
+
+```{r}
+set.seed(100)
+#Create random forest
+rf.mod <- randomForest(popularity ~ ., data = songs,
+                       mtry = 5, ntree = 501, importance = TRUE)
+
+saveRDS(rf.mod, "~/Documents/GitHub/song-popularity/song-popularity-dashboard/randomforest.RDS")
+
+```
+
+
+```{r}
+testData <- data.frame(
+      duration_ms = 50000,
+      explicit = TRUE,
+      danceability = 0.25,
+      energy = 0.25,
+      key = 3,
+      loudness = -50,
+      mode = 1,
+      speechiness = 0.25,
+      acousticness = 0.25,
+      instrumentalness = 0.25,
+      liveness = 0.25,
+      valence = 0.25,
+      tempo = 153,
+      time_signature = 4,
+      track_genre = "pop")
+
+
+pred <- predict(rf.mod, testData)
+```
+
