@@ -9,6 +9,7 @@ This is an expansion of the final project for STAT 1361. In this project we are 
 1. [**Introduction**](#introduction)
 2. [**EDA**](#eda)
 3. [**Modelling**](#modelling)
+4. [**Shiny Dashboard**](#shiny-dashboard)
 
 ## Introduction (The Hypothetical Scenario)
 SonicWave Productions is a growing company seeking to gain headway in the music industry. The music industry is valued at 14.34 billion as of 2024 and is projected to consistently grow in the following years (Statista, 2024). To gain a competitive advantage and grow SonicWave’s market share, it is imperative to understand what factors are most important in creating a popular song.
@@ -21,6 +22,8 @@ To view my exploratory data analysis, please view the `exploratory-analysis.Rmd`
 ### EDA Highlights
 
 ## Modelling
+
+## Shiny Dashboard
 
 
 
