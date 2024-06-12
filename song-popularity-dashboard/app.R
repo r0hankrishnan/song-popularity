@@ -1,6 +1,7 @@
 library(shinydashboard)
 library(tidyverse)
 library(randomForest)
+library(plotly)
 
 songs <- read.csv("~/Documents/GitHub/song-popularity/data/clean_data.csv")
 songs <- songs %>% select(-id)
@@ -74,7 +75,13 @@ ui <- dashboardPage(
   ),
   
   dashboardBody(
-    box(textOutput("text_result"))
+    fluidRow(
+      valueBoxOutput("text_result")
+    ),
+    
+    fluidRow(
+      plotlyOutput("plot")
+    )
    
   
   )
@@ -101,21 +108,37 @@ server <- function(input, output) {
     )
   })
   
-  prediction <- eventReactive(input$action, {
+  popularity <- eventReactive(input$action, {
     rf_model <- readRDS("~/Documents/GitHub/song-popularity/song-popularity-dashboard/randomforest.RDS")
     
     
     pred <- predict(rf_model, testData(), type = "response")
     
-    pred
+    predNum <- round(pred,2)
   })
   
-  output$text_result <- renderText({
-    predNum <- as.numeric(prediction())
+  output$text_result <- renderValueBox({
     
-    paste0("The song's predicted popularity is: ", round(predNum,2))
+    valueBox(value = popularity(),
+             subtitle = "Predicted Popularity",
+             icon = icon("fa-regular fa-heart"),
+             color = "purple",
+             width = "100%")
   })
   
+  plot_data <- eventReactive(input$action,{
+    pData <- cbind(popularity(), testData())
+    
+    pData %>% rename(popularity = "popularity()")
+  })
+  
+  output$plot <- renderPlotly({
+    songs %>%
+      ggplot(aes(x = format(duration_ms, scientific = F), y = popularity)) + 
+      geom_point() + 
+      geom_point(aes(x = plot_data()$duration_ms, y = plot_data()$popularity), color = "red") +
+      labs(x = "Duration (ms)", y = "Popularity")
+  })
 }
 
 shinyApp(ui, server)

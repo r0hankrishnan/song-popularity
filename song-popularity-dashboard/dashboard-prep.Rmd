@@ -49,6 +49,14 @@ testData <- data.frame(
       track_genre = "pop")
 
 
-pred <- predict(rf.mod, testData)
+popularity <- predict(rf.mod, testData)
+
+dData <- cbind(popularity, testData)
+```
+
+```{r}
+songs %>% ggplot(aes(x = duration_ms, y = popularity)) + 
+  geom_point() + 
+  geom_point(aes(x = dData$duration_ms, y = dData$popularity), color = "red")
 ```
 
