@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+#data
 ```{r}
 library(tidyverse)
 library(randomForest)
@@ -20,6 +21,7 @@ songs<- songs %>% select(-id)
 unique(songs$mode)
 ```
 
+#model
 ```{r}
 set.seed(100)
 #Create random forest
@@ -30,7 +32,7 @@ saveRDS(rf.mod, "~/Documents/GitHub/song-popularity/song-popularity-dashboard/ra
 
 ```
 
-
+#generate dummy test data
 ```{r}
 testData <- data.frame(
       duration_ms = 50000,
@@ -52,12 +54,23 @@ testData <- data.frame(
 popularity <- predict(rf.mod, testData)
 
 dData <- cbind(popularity, testData)
+```
 
+#create kable
+```{r}
 dData %>%
   gather(key = "key", value = "value", popularity:track_genre) %>%
   mutate(key = str_replace(key,"_", " ") %>% str_to_title()) %>%
   kable(digits = 2, format.args = list(big.mark = ",")) 
   
+
+
+dData %>%
+  gather(key = "key", value = "value", popularity:track_genre) %>%
+  mutate(key = str_replace(key,"_", " ") %>% str_to_title()) %>%
+  datatable(options = list(
+    pageLength = 16
+  ))
 
 dData %>%
   t() %>%
@@ -68,6 +81,31 @@ dData %>%
   kable() 
 ```
 
+#combined data graph (v2)
+```{r}
+library(scales)
+library(plotly)
+graphData <- rbind(
+  songs %>% mutate(isTest = FALSE),
+  dData %>% mutate(isTest = TRUE)
+  )
+tail(graphData, 5)
+
+graphData$label <- paste("Popularity: ", round(graphData$popularity,2), "<br>Duration(ms): ", graphData$duration_ms,
+                         "<br>Explicit: ", graphData$explicit)
+
+plot <- graphData %>%
+      ggplot(aes(x = duration_ms, y = popularity, color = isTest, text = label)) + 
+      geom_point() + 
+      scale_x_continuous(labels = label_number()) + 
+      labs(x = "Duration (ms)", y = "Popularity",
+           color = "New Data") +
+      scale_color_manual(values = c("black", "red"))
+
+ggplotly(plot, tooltip = "text")
+```
+
+#combined data graph (v1)
 ```{r}
 library(scales)
 
