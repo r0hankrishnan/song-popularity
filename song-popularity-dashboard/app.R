@@ -1,13 +1,15 @@
+#Load libraries
 library(shinydashboard)
 library(tidyverse)
 library(randomForest)
-library(kableExtra)
+library(DT)
 library(plotly)
 library(scales)
 
+#Import data, remove id, create choice vectors for non-numeric variables
 songs <- read.csv("~/Documents/GitHub/song-popularity/data/clean_data.csv")
 songs <- songs %>% select(-id)
-range(songs$danceability)
+
 keyChoice <- sort(as.vector(unique(songs$key)))
 timeChoice <- sort(as.vector(unique(songs$time_signature)))
 genreChoice <- as.vector(unique(songs$track_genre))
@@ -15,10 +17,23 @@ genreChoice <- as.vector(unique(songs$track_genre))
 
 ui <- dashboardPage(
   skin = "black",
-
+  #Header
   dashboardHeader(title = "Song Popularity Prediction", titleWidth = 250),
+  
+  #Sidebar
   dashboardSidebar(
+    #Add sidebar scroll
     tags$head(tags$style(".wrapper {overflow: visible !important;}")),
+    
+    sidebarMenu(
+      menuItem("Prediction", tabName = "prediction"),
+      menuItem("EDA", tabName = "eda")
+    ),
+    
+    #Song name input
+    textInput(inputId = "song_name", label = "Song Name",
+              width = "100%"),
+    
     #Input variables
     numericInput(inputId = "duration_ms", label = "Song Duration (ms)",
                 min = 0, max = 1000000, value = 0),
@@ -76,28 +91,41 @@ ui <- dashboardPage(
                  label = "Run Popularity Prediction")
   ),
   
+  #Body
   dashboardBody(
-    fluidRow(
-      valueBoxOutput("text_result", width = "100%")
+    #Prediction tab
+    tabItems(
+      tabItem(tabName = "prediction",
+        fluidRow(
+          valueBoxOutput("text_result", width = "100%"),
+        ),
+        
+        fluidRow(
+          plotlyOutput("plot")
+        ),
+        
+        fluidRow(
+          dataTableOutput("table")
+        )
+      )
     ),
     
-    fluidRow(
-      plotOutput("plot")
-    ),
-    
-    fluidRow(
-      textOutput(tags$h1("Header"))
-    ),
-    
-    fluidRow(
-      uiOutput("table")
+    #EDA tab
+    tabItems(
+      tabItem(tabName = "eda")
     )
-   
-  
+    
   )
     )
 
 server <- function(input, output) {
+  
+  #Create reactive object for name
+  name <- eventReactive(input$action, {
+    name <- str_to_title(input$song_name)
+  })
+  
+  #Create reactive test data from inputs after button is clicked
   testData <- eventReactive(input$action, {
     newData <- data.frame(
       duration_ms = input$duration_ms,
@@ -118,6 +146,7 @@ server <- function(input, output) {
     )
   })
   
+  #Create popularity prediction from RF model & test data
   popularity <- eventReactive(input$action, {
     rf_model <- readRDS("~/Documents/GitHub/song-popularity/song-popularity-dashboard/randomforest.RDS")
     
@@ -127,44 +156,58 @@ server <- function(input, output) {
     predNum <- round(pred,2)
   })
   
+  #Create value box output for predicted popularity
   output$text_result <- renderValueBox({
     
     valueBox(value = popularity(),
-             subtitle = "Predicted Popularity",
+             subtitle = paste(name(), "Predicted Popularity"),
+             icon = icon("heart", lib = "glyphicon"),
              color = "purple",
              width = "100%")
   })
   
-  plot_data <- eventReactive(input$action,{
+  #Create test data set with popularity and other features
+  full_test_data <- eventReactive(input$action,{
     pData <- cbind(popularity(), testData())
     
     pData %>% rename(popularity = "popularity()")
   })
   
-  output$plot <- renderPlot({
-    songs %>%
-      ggplot(
-        aes(x = duration_ms, y = popularity, 
-            text = paste("Popularity: ", popularity, "\n",
-                         "Duration(ms): ", duration_ms), sep = "")) + 
-      geom_point() + 
-      geom_point(aes(x = plot_data()$duration_ms, y = plot_data()$popularity), color = "red") +
+  #Create plot
+  output$plot <- renderPlotly({
+    
+    #Create combined data set for graph (include indicator for test data)
+    graphData <- rbind(songs %>% mutate(isTest = FALSE, name = NA),
+                       full_test_data() %>% mutate(isTest = TRUE, name = name())
+                       )
+    
+    #Create label variable in graphData
+    graphData$label <- paste("Song Name: ", ifelse(is.na(graphData$name), " ", graphData$name),
+                             "<br>Popularity: ", round(graphData$popularity,2), "<br>Duration(ms): ", graphData$duration_ms,
+                             "<br>Explicit: ", ifelse(graphData$explicit, "Yes", "No"), "<br>Genre: ", str_to_title(graphData$track_genre))
+    #Create ggplot object
+    p <- graphData %>%
+      ggplot(aes(x = duration_ms, y = popularity, color = isTest)) + 
+      geom_point(aes(text = label)) + 
       scale_x_continuous(labels = label_number()) + 
-      labs(title = "Duration(ms) vs Popularity",
-           x = "Duration (ms)", y = "Popularity") + 
-      theme_bw()
+      labs(title = paste("Duration vs Popularity (including ", name(), ")", sep = ""),
+                         x = "Duration (ms)", y = "Popularity",
+                         color = "New Data") +
+      scale_color_manual(values = c("black", "red")) + 
+      theme_minimal()
+    
+    #Create plotly object
+    plot <- ggplotly(p, tooltip = "text")
   })
   
-  output$table <- function(){
-    plot_data() %>%
-      gather(key = "key", value = "value", popularity:track_genre) %>%
+  #Create table
+  output$table <- renderDataTable({
+    full_test_data() %>%
+      gather(key = "key", value = "value", popularity:track_genre) %>% 
       mutate(key = str_replace(key,"_", " ") %>% str_to_title()) %>%
-      kable(caption = "Predicted Popularity Summary", 
-            digits = 2, format.args = list(big.mark = ","),
-            col.names = c("Variable", "Value")) %>%
-      kable_styling(bootstrap_options = c("striped", "hover"), full_width = TRUE)
-      
-  }
+      rename(Attribute = "key", Value = "value") %>%
+      datatable(options = list(pageLength = 16))
+  })
 }
 
 shinyApp(ui, server)
