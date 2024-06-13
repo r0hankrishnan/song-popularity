@@ -31,10 +31,19 @@ The data set did not have any missing values. There were also no outliers in the
 
 Multiple models were considered for predicting the popularity of songs across the rock, jazz, and pop genres. Each model tried, a small description of the model, and their final test MSE is reported below:
 
-| **Model** | **Description** | **MSE** |
-|-----------|-----------------|---------|
-| Multiple Linear Regression | Simple MLR with all 15 variables | 877.32 |
-| Best Subset Selection | BSS algorithm, chose output with only genre variable | 877.32 |
+| **Model** | **Description** | **MSE** | **Root MSE** |
+|-----------|-----------------|---------|--------------|
+| Multiple Linear Regression | Simple MLR with all 15 variables | 877.32 | 29.62 |
+| Best Subset Selection | BSS algorithm, chose output with only genre variable | 877.32 | 29.62 |
+| LASSO Regression | Chose 11 variables including genre | 857.25 | 29.28 |
+| After LASSO OLS | OLS ran with variables chosen by LASSO | 1058.71 | 32.54 |
+| Ridge Regression | Largest effect was genre | 877.89 | 29.63 |
+| Bagged Random Forest | Full size trees: genre was most important | 707.13 | 26.59 |
+| *Random Forest* | *Mtry value selected as p/3 ~ 5, genre was most important* | *694.76* | *26.36* |
+| BART Model | Bayesian Additive Regression Tree model | 847.19 | 29.11 |
+| Boosted Tree | Normal boosted tree | 919.81 | 30.33 |
+
+Overall, the random forest with an mtry value of 5 and ntree value of 501 (odd number to resolve any ties) performed the best by the metric of mean squared error. The bagged random forest performed similarly well but all the other models were significantly worse. I chose to use MSE as a measure as it is a standard measure of predictive error for regression tasks. The RMSE (Root Mean Squared Error) is also listed as it is in the same unit as the `popularity` vairable, making it easier to interpret.
 
 ## Shiny Dashboard
 
