@@ -25,7 +25,16 @@ I first looked at how popularity differed when compared with the categorical var
 
 ![image](genre_pop.png)
 
+The data set did not have any missing values. There were also no outliers in the popularity values as they ranged from 0-100. However, upon examining the time signature variable, I found that there was only one value for time signatures of 1 and no values for time signatures of 2. Because these values were so small, I elected to remove them entirely from the dataset so that the other variables could be properly considered.
+
 ## Modelling
+
+Multiple models were considered for predicting the popularity of songs across the rock, jazz, and pop genres. Each model tried, a small description of the model, and their final test MSE is reported below:
+
+| **Model** | **Description** | **MSE** |
+|-----------|-----------------|---------|
+| Multiple Linear Regression | Simple MLR with all 15 variables | 877.32 |
+| Best Subset Selection | BSS algorithm, chose output with only genre variable | 877.32 |
 
 ## Shiny Dashboard
 
