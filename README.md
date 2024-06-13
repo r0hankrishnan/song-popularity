@@ -53,8 +53,6 @@ Finally, I decided to create a web dashboard to summarize my findings and deploy
 
 *Things to add:*
 - *Separate page that lists basic exploratory charts before running model*
-- *Name input section that then is integrated with model output*
-- *Make model chart interactive using plotly*
 - *Add chart for random forest variable importance*
 
 
