@@ -49,7 +49,7 @@ Overall, the random forest with an mtry value of 5 and ntree value of 501 (odd n
 
 Finally, I decided to create a web dashboard to summarize my findings and deploy my random forest model using R Shiny and the `shinydashboard` package. After filling out the requried characteristics of a song using the left-hand panel and hitting the 'run model' button, the random forest model that was found to perform the best will generate a prediction for that song's popularity. Below the output, a graph will display where the entered song falls in comparison to all other songs in the model's data. Finally, at the bottom of the dashboard, a table is presented that lists the predicted popularity and all other entered characteristics for the song of interest.
 
-![song-dashboard](song_dashboard.png)
+![song-dashboard](README-pics/song_dashboard.png)
 
 *Things to add:*
 - *Separate page that lists basic exploratory charts before running model*
