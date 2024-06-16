@@ -1,6 +1,7 @@
 #Load libraries
 library(shinydashboard)
 library(tidyverse)
+library(ggthemes)
 library(randomForest)
 library(DT)
 library(plotly)
@@ -16,7 +17,7 @@ genreChoice <- as.vector(unique(songs$track_genre))
 
 
 ui <- dashboardPage(
-  skin = "black",
+  skin = "blue",
   #Header
   dashboardHeader(title = "Song Popularity Prediction", titleWidth = 250),
   
@@ -26,8 +27,7 @@ ui <- dashboardPage(
     tags$head(tags$style(".wrapper {overflow: visible !important;}")),
     
     sidebarMenu(
-      menuItem("Prediction", tabName = "prediction"),
-      menuItem("EDA", tabName = "eda")
+      menuItem("Prediction", tabName = "prediction")
     ),
     
     #Song name input
@@ -93,30 +93,41 @@ ui <- dashboardPage(
   
   #Body
   dashboardBody(
+    
+    tags$head(tags$style(HTML('
+      .content-wrapper{
+        background-color: #fff;
+      }
+      
+      #row1{
+        padding-left: 5px;
+        padding-right: 5px;
+      }
+        
+      .small-box{
+        border-radius: 10px;
+      }
+    '
+    ))),
     #Prediction tab
     tabItems(
       tabItem(tabName = "prediction",
-        fluidRow(
-          valueBoxOutput("text_result", width = "100%"),
-        ),
-        
-        fluidRow(
-          plotlyOutput("plot")
-        ),
-        
-        fluidRow(
-          dataTableOutput("table")
+              fluidRow(id = "row1",
+                valueBoxOutput("text_result", width = "100%")
+                ),
+              fluidRow(id = "row1",
+                box(plotlyOutput("plot"),
+                    width = 12)
+              ),
+              fluidRow(id = "row1",
+                box(tags$div(id = 'placeholder') ,
+                  dataTableOutput("table"),
+                  width = 12)
+              )
         )
       )
-    ),
-    
-    #EDA tab
-    tabItems(
-      tabItem(tabName = "eda")
     )
-    
-  )
-    )
+)
 
 server <- function(input, output) {
   
@@ -148,7 +159,7 @@ server <- function(input, output) {
   
   #Create popularity prediction from RF model & test data
   popularity <- eventReactive(input$action, {
-    rf_model <- readRDS("~/Documents/GitHub/song-popularity/song-popularity-dashboard/randomforest.RDS")
+    rf_model <- readRDS("randomforest.RDS")
     
     
     pred <- predict(rf_model, testData(), type = "response")
@@ -161,8 +172,7 @@ server <- function(input, output) {
     
     valueBox(value = popularity(),
              subtitle = paste(name(), "Predicted Popularity"),
-             icon = icon("heart", lib = "glyphicon"),
-             color = "purple",
+             color = "blue",
              width = "100%")
   })
   
@@ -182,7 +192,7 @@ server <- function(input, output) {
                        )
     
     #Create label variable in graphData
-    graphData$label <- paste("Song Name: ", ifelse(is.na(graphData$name), " ", graphData$name),
+    graphData$label <- paste("Song Name: ", ifelse(is.na(graphData$name), "NA", graphData$name),
                              "<br>Popularity: ", round(graphData$popularity,2), "<br>Duration(ms): ", graphData$duration_ms,
                              "<br>Explicit: ", ifelse(graphData$explicit, "Yes", "No"), "<br>Genre: ", str_to_title(graphData$track_genre))
     #Create ggplot object
@@ -190,17 +200,30 @@ server <- function(input, output) {
       ggplot(aes(x = duration_ms, y = popularity, color = isTest)) + 
       geom_point(aes(text = label)) + 
       scale_x_continuous(labels = label_number()) + 
-      labs(title = paste("Duration vs Popularity (including ", name(), ")", sep = ""),
+      labs(title = paste("Duration vs Popularity (" ,name(), " in blue)", sep = ""),
                          x = "Duration (ms)", y = "Popularity",
                          color = "New Data") +
-      scale_color_manual(values = c("black", "red")) + 
-      theme_minimal()
+      scale_color_manual(values = c("black", "blue")) + 
+      ggthemes::theme_few() +
+      theme(legend.position = "none") 
+      
     
     #Create plotly object
     plot <- ggplotly(p, tooltip = "text")
   })
   
   #Create table
+  observeEvent(input$action, {
+    insertUI(
+      selector = '#placeholder',
+      ## wrap element in a div with id for ease of removal
+      ui = tags$div(
+        tags$h1(paste(name(),": Predicted Popularity & Inputted Characteristics", sep = "")), 
+        id = "tableHeader"
+      )
+    )
+  })
+  
   output$table <- renderDataTable({
     full_test_data() %>%
       gather(key = "key", value = "value", popularity:track_genre) %>% 
