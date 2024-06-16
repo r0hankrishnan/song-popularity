@@ -31,11 +31,13 @@ for (i in 1:ncol(data)){
 }
 
 #Count missing values for each column -- No missing values
+print("NA's by column")
 for (i in 1:ncol(data)){
   print(paste0(colnames(data[i]), ": ", sum(is.na(data[,i]))))
 }
 
 #Count unique values for each column -- explicity is binary, key is categorical, mode is binary, time_signature is categorical, track_genre is categorical 
+print("Distinct values by column")
 for (i in colnames(data)){
   x = n_distinct(data[i])
   print(paste(i," distinct values: ", x))
@@ -107,7 +109,11 @@ data %>%
 #Look at mean values across genres
 genre_means <- data %>%
   group_by(track_genre) %>%
-  summarise(across(everything(),mean)); genre_means
+  summarise(across(everything(),mean)); 
+
+genre_means %>%
+  t() %>%
+  as.data.frame()
 
 #Look at boxplots + densities between genres
 for(i in 1:ncol(data)){
