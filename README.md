@@ -23,7 +23,8 @@ To view my exploratory data analysis, please open the `exploratory-analysis.Rmd`
 
 I first looked at how popularity differed when compared with the categorical variables in the data set, specifically track genre and time signature. As is shown in the boxplot figure to below, pop (green) has most of the popular songs while jazz (red) has mostly lower and middle rated songs and rock (blue) has almost entirely lower rated songs, with its higher rated songs falling outside of 1.5*IQR of its bounds. I then looked at how popularity differed by time signature. It appears that there is no real difference between time signatures of 3, 4, and 5; though time signatures of 1 seemed to have a larger density of lower popularity longs. Another interesting finding was that songs that were not explicit tended to have a higher density of lower ranked songs and very few extremely high ranked songs while explicit songs tended to have either lower ranked or extremely high ranked songs. Overall, very few of the variables appeared to follow a normal distribution. There also appeared to be some level of collinearity between energy and loudness. However, since there are only a small number of variables to work with, I elected to keep both in the model and address the issue via model selection techniques.
 
-![image](README-pics/genre_pop.png)
+![genre-plot](README-pics/genre_pop.png)
+![time-signature-plot](README/time-signature-plot.png)
 
 The data set did not have any missing values. There were also no outliers in the popularity values as they ranged from 0-100. However, upon examining the time signature variable, I found that there was only one value for time signatures of 1 and no values for time signatures of 2. Because these values were so small, I elected to remove them entirely from the dataset so that the other variables could be properly considered.
 
@@ -49,7 +50,8 @@ Overall, the random forest with an mtry value of 5 and ntree value of 501 (odd n
 
 Finally, I decided to create a web dashboard to summarize my findings and deploy my random forest model using R Shiny and the `shinydashboard` package. After filling out the requried characteristics of a song using the left-hand panel and hitting the 'run model' button, the random forest model that was found to perform the best will generate a prediction for that song's popularity. Below the output, a graph will display where the entered song falls in comparison to all other songs in the model's data. Finally, at the bottom of the dashboard, a table is presented that lists the predicted popularity and all other entered characteristics for the song of interest.
 
-![song-dashboard](README-pics/song_dashboard.png)
+![Dashboard-top-half](README-pics/Dashboard-1.png)
+![Dashboard-bottom-half](README-pics/Dashboard-2.png)
 
 *Things to add:*
 - *Separate page that lists basic exploratory charts before running model*
