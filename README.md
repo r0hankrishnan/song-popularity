@@ -26,7 +26,7 @@ I first looked at how popularity differed when compared with the categorical var
 ![genre-plot](README-pics/genre_pop.png)
 
 
-![time-signature-plot](README/time-sig-plot.png) 
+![plot](README/time-sig-plot.png) 
 
 The data set did not have any missing values. There were also no outliers in the popularity values as they ranged from 0-100. However, upon examining the time signature variable, I found that there was only one value for time signatures of 1 and no values for time signatures of 2. Because these values were so small, I elected to remove them entirely from the dataset so that the other variables could be properly considered.
 
