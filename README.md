@@ -65,6 +65,8 @@ Finally, I decided to create a web dashboard to summarize my findings and deploy
 ![Dashboard-bottom-half](README-pics/Dashboard-2.png)
 
 *Things to add:*
+- Integrate spotify api
+  - Enter a song's name and automatically pull required info
 - *Separate page that lists basic exploratory charts before running model*
 - *Add chart for random forest variable importance*
 
