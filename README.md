@@ -3,10 +3,9 @@
 
 *Planned additions to this project are listed at the bottom of this README!*
 
-```{r}
-test <- func(){
+```python
+def test():
   print("hello")
-}
 ```
 
 
