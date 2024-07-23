@@ -19,7 +19,7 @@ SonicWave Productions is a growing company seeking to gain headway in the music 
 As a Data Science Consultant , I was hired to predict the popularity of songs from rock, jazz, and pop genres. I was provided a data set with 1200 observations across 19 variables that encompassed various song metrics. Such a model would empower their team of music professionals to swiftly identify songs that are either undervalued or overvalued in the market, facilitating strategic decisions in song selection, promotion, and distribution. In this README, I will highlight the analyses I conducted to understand the relationships within the data, how I cleaned the data, the models I developed and how they performed, and my final takeaways regarding how the models should or should not be utilized.
 
 ## EDA
-To view my exploratory data analysis, please open go to `cleaning-and-eda/exploratory-analysis.Rmd`.
+To view my exploratory data analysis, please open `cleaning-and-eda/exploratory-analysis.Rmd`.
 
 ### EDA Highlights
 
@@ -32,7 +32,7 @@ I first looked at how popularity differed when compared with the categorical var
 The data set did not have any missing values. There were also no outliers in the popularity values as they ranged from 0-100. However, upon examining the time signature variable, I found that there was only one value for time signatures of 1 and no values for time signatures of 2. Because these values were so small, I elected to remove them entirely from the dataset so that the other variables could be properly considered.
 
 ## Modelling
-
+To look at the code for each model, you can go to `models/linear-models.Rmd` and `models/tree-models.Rmd`.
 
 Multiple models were considered for predicting the popularity of songs across the rock, jazz, and pop genres. Each model tried, a small description of the model, and their final test MSE is reported below:
 
