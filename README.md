@@ -3,7 +3,7 @@
 
 *Planned additions to this project are listed at the bottom of this README!*
 
-In this project we are given a data set containing a list of songs across three genres (pop, rock, and jazz), their characteristics, and their popularities. I will explore the data and then create several models to predict a song's popularity based on the given information. 
+In this project, I explore a data set containing a list of songs with their genres, characteristics, and popularity scores. I then create several models to predict a song's popularity based on its characteristics. 
 
 ## Table of Contents
 1. [**Introduction**](#introduction)
